@@ -1,0 +1,10 @@
+- Accept URLs with `channel/[id]/videos` or `/c/[name]/` or `/user/[name]`
+- Implement converting tool from XML to JSON to prevent max channels bug
+- Fix plural format in date
+- Show list of subscribed channels (with name?) in a dialog/menu when running unsubscribe command
+- Better support for Invidious - some instance are breaking
+- Implement styling on page
+- Show list of subscribed channels on page
+- Implement video limit to show on page
+- Test scripts in Bash?
+- More logging...
