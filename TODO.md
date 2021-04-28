@@ -8,3 +8,4 @@
 - Implement video limit to show on page
 - Test scripts in Bash?
 - More logging...
+- Publish on Homebrew, Chocolatey, etc...?

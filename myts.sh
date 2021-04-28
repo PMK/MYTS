@@ -9,6 +9,7 @@
 #
 # DEPENDENCIES:
 # - jq (https://github.com/stedolan/jq)
+# - GnuTLS (https://gitlab.com/gnutls/gnutls)
 #
 # USING SERVICE FROM:
 # - feed2json (https://feed2json.org)
@@ -47,7 +48,7 @@ parser_definition() {
          "Usage: ${2##*/} [global options...] [command] [options...] [arguments...]"
   msg -- '' '(c) PMK' '-GNU GPLv3' ''
   msg -- 'Manage YouTube subscriptions via the command line' ''
-  msg -- 'With MYTS you can easily manage YouTube channel subscriptions via the command line. Your subscriptions are stored local in a file. Run the subcommand "server" to start a webserver what will display all the latest videos of the channels you subscribed to.' ''
+  msg -- 'With MYTS you can easily manage YouTube channel subscriptions via the command line, without the need of a user account on YouTube. Your subscriptions are stored local in a file. Run the subcommand "server" to start a webserver what will display all the latest videos of the channels you subscribed to.' ''
   msg -- '' 'Options:'
   param  FILE -f --file -- "File containing subscriptions (default: $DEFAULT_STORAGE_FILE)"
   disp   :usage  -h --help -- "Show this help"
@@ -93,16 +94,6 @@ parser_definition_server() {
 # Wrapped functions
 ##
 
-# Run dependency 'pup' what is installed, or in a specific directory
-safe_pup() {
-  if hash pup 2>/dev/null; then
-    pup "$@"
-  else
-    echo "Dependency 'pup' not found!"
-    exit 1
-  fi
-}
-
 # Run dependency 'jq' what is installed, or in a specific directory
 safe_jq() {
   if hash jq 2>/dev/null; then
@@ -116,7 +107,6 @@ safe_jq() {
 # Run GNU echo
 safe_echo() {
   if echo --version >/dev/null 2>&1; then
-    # Using GNU date
     echo "$@"
   else
     if hash gecho 2>/dev/null; then
@@ -138,9 +128,8 @@ safe_sleep() {
 }
 
 # Run GNU date
-function safe_date {
+safe_date() {
   if date --version >/dev/null 2>&1; then
-    # Using GNU date
     date "$@"
   else
     if hash gdate 2>/dev/null; then
@@ -265,6 +254,7 @@ add_channel_id_to_storage_file() {
   else
     safe_echo -en "$1\n" >> $STORAGE_FILE
     print_log "Added $1 to storage file $STORAGE_FILE"
+    safe_echo "Subscribed."
   fi
 }
 
@@ -278,6 +268,7 @@ remove_channel_id_from_storage_file() {
     cat $STORAGE_FILE | grep -F -v "$1" > "$STORAGE_FILE.tmp"
     mv "$STORAGE_FILE.tmp" $STORAGE_FILE
     print_log "Removed $1 from storage file $STORAGE_FILE"
+    safe_echo "Unsubscribed."
   fi
 }
 
@@ -362,10 +353,13 @@ generate_html() {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MYTS</title>
   <style>
+    body {
+      margin: 2em;
+    }
     section {
       display: grid;
       grid-gap: 1em;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(20%, 1fr));
     }
     .thumb {
       width: 100%;
@@ -385,8 +379,9 @@ local template_video=$(cat <<EOF
         <a href="$INSTANCE/watch?v=@1" target="_blank">
           <img class="thumb" src="$(get_thumbnail '@1')" alt="@2" />
           <p>@2</p>
-          <p><sup>@3</sup></p>
         </a>
+        <p>by <a href="${INSTANCE}/@4" target="_blank">@5</a></p>
+        <p><small>@3</small></p>
       </article>
 EOF
 )
@@ -405,10 +400,15 @@ EOF
     local title=$(safe_echo "$video" | jq ".title" | tr -d '"')
     local rawpubdate=$(safe_echo "$video" | jq ".date_published" | tr -d '"')
     local pubdate=$(relative_date "$rawpubdate")
+    local channelid=$(safe_echo "$video" | jq ".channel_id" | tr -d '"')
+    local channelname=$(safe_echo "$video" | jq ".author.name" | tr -d '"')
+
     safe_echo $template_video | sed \
       -e "s/@1/$videoid/g" \
       -e "s/@2/$title/g" \
-      -e "s/@3/$pubdate/g"
+      -e "s/@3/$pubdate/g" \
+      -e "s/@4/$channelid/g" \
+      -e "s/@5/$channelname/g"
   done < <(get_latest_videos_from_all_channel_ids_in_storage_file | jq -cr '.[]')
   safe_echo $template_end
 }
@@ -443,7 +443,6 @@ cmd_subscribe() {
       fi
       shift
     done
-    safe_echo "Subscribed."
   fi
 }
 
@@ -462,7 +461,6 @@ cmd_unsubscribe() {
       fi
       shift
     done
-    safe_echo "Unsubscribed."
   fi
 }
 

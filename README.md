@@ -1,13 +1,23 @@
 # MYTS - Manage YouTube subscriptions (or Invidious instances) via the command line
 
-With MYTS you can easily manage YouTube channel subscriptions via the command line. Your subscriptions are stored local in a file. Run the subcommand "server" to start a webserver what will display all the latest videos of the channels you subscribed to.
+With MYTS you can easily manage YouTube channel subscriptions via the command line, without the need of a user account on YouTube. Your subscriptions are stored local in a file. Run the subcommand "server" to start a webserver what will display all the latest videos of the channels you subscribed to.
 
 ![Command line example](https://github.com/pmk/myts/blob/master/example/1-command-line.png?raw=true)
 
 ## Dependencies
-- jq: https://github.com/stedolan/jq
+
+- jq (https://github.com/stedolan/jq)
+
+### Extra dependencies for macOS only
+
+- GnuTLS (https://gitlab.com/gnutls/gnutls)
+
+```sh
+$ brew install gnutls
+```
 
 ## Using service from
+
 - feed2json (https://feed2json.org)
 
 # Commands
@@ -32,6 +42,7 @@ Start a webserver to display the latest videos of the subscribed YouTube channel
 
 - getoptions (https://github.com/ko1nksm/getoptions/)
 - jq (https://github.com/stedolan/jq)
+- GnuTLS (https://gitlab.com/gnutls/gnutls/)
 - feed2json (https://feed2json.org)
 - Invidious (https://github.com/iv-org/invidious)
 
