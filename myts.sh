@@ -28,6 +28,7 @@ DEFAULT_SERVER_PORT="3210"
 USE_INVIDIOUS=0
 CHANNEL_AMOUNT_LIMIT="50"
 VIDEO_AMOUNT_LIMIT="48"
+I=$'\a'	#sets variable I to "system bell" using ansi-c style quoting (bash/ksh)
 
 
 ##
@@ -404,11 +405,11 @@ EOF
     local channelname=$(safe_echo "$video" | jq ".author.name" | tr -d '"')
 
     safe_echo $template_video | sed \
-      -e "s/@1/$videoid/g" \
-      -e "s/@2/$title/g" \
-      -e "s/@3/$pubdate/g" \
-      -e "s/@4/$channelid/g" \
-      -e "s/@5/$channelname/g"
+      -e "s${I}@1${I}$videoid${I}g" \
+      -e "s${I}@2${I}$title${I}g" \
+      -e "s${I}@3${I}$pubdate${I}g" \
+      -e "s${I}@4${I}$channelid${I}g" \
+      -e "s${I}@5${I}$channelname${I}g"
   done < <(get_latest_videos_from_all_channel_ids_in_storage_file | jq -cr '.[]')
   safe_echo $template_end
 }
