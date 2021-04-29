@@ -1,4 +1,3 @@
-- Fix `sed` in generate_template() - if content contains characters other than a-z0-9 it breaks.
 - Accept URLs with `channel/[id]/videos` or `/c/[name]/` or `/user/[name]`
 - Implement converting tool from XML to JSON to prevent max channels bug
 - Fix plural format in date
