@@ -411,7 +411,7 @@ local template_video=$(cat <<EOF
           <img class="thumb" src="$(get_thumbnail '@1')" alt="@2" />
           <p>@2</p>
         </a>
-        <p>by <a href="${INSTANCE}/@4" target="_blank">@5</a></p>
+        <p>by <a href="${INSTANCE}/channel/@4" target="_blank">@5</a></p>
         <p><small>@3</small></p>
       </article>
 EOF
