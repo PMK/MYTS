@@ -218,6 +218,36 @@ relative_date() {
   fi
 }
 
+# Escapes characters what could break in Bash
+escape_characters() {
+  local escaped="$1"
+
+  # escape all backslashes
+  escaped="${escaped//\\/\\\\}"
+
+  # escape slashes
+  escaped="${escaped//\//\\/}"
+
+  # escape asterisks
+  escaped="${escaped//\*/\\*}"
+
+  # escape full stops
+  escaped="${escaped//./\\.}"
+
+  # escape [ and ]
+  escaped="${escaped//\[/\\[}"
+  escaped="${escaped//\[/\\]}"
+
+  # escape ^ and $
+  escaped="${escaped//^/\\^}"
+  escaped="${escaped//\$/\\\$}"
+
+  # remove newlines
+  escaped="${escaped//[$'\n']/}"
+
+  safe_echo "$escaped"
+}
+
 # Returns "true" if input contains a valid YouTube channel URI
 is_valid_channel_uri() {
   if test -z "$1"; then
@@ -404,12 +434,15 @@ EOF
     local channelid=$(safe_echo "$video" | jq ".channel_id" | tr -d '"')
     local channelname=$(safe_echo "$video" | jq ".author.name" | tr -d '"')
 
+    local nice_title=$(escape_characters "$title")
+    local nice_channelname=$(escape_characters "$channelname")
+
     safe_echo $template_video | sed \
       -e "s${I}@1${I}$videoid${I}g" \
-      -e "s${I}@2${I}$title${I}g" \
+      -e "s${I}@2${I}$nice_title${I}g" \
       -e "s${I}@3${I}$pubdate${I}g" \
       -e "s${I}@4${I}$channelid${I}g" \
-      -e "s${I}@5${I}$channelname${I}g"
+      -e "s${I}@5${I}$nice_channelname${I}g"
   done < <(get_latest_videos_from_all_channel_ids_in_storage_file | jq -cr '.[]')
   safe_echo $template_end
 }
