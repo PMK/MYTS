@@ -361,12 +361,6 @@ get_latest_videos_from_all_channel_ids_in_storage_file() {
       2>/dev/null)
     all_videos_json="$all_videos_json$(safe_echo "$curl_response" | jq -c --arg channelid $channel '[limit(3;.items[])] | .[] += {"channel_id":$channelid}')"
 
-    # Cool down the requests on half way
-    # if $curl_response == "Too Many Requests"; then sleep 2
-    if test "$i" == "$CHANNEL_AMOUNT_LIMIT"; then
-      safe_sleep 2
-    fi
-
     i=$i+1
   done < $STORAGE_FILE
 
