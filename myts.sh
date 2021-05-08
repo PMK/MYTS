@@ -390,7 +390,7 @@ generate_html() {
     section {
       display: grid;
       grid-gap: 1em;
-      grid-template-columns: repeat(auto-fit, minmax(20%, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(12em, 1fr));
     }
     .thumb {
       width: 100%;
