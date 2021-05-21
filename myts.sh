@@ -561,4 +561,6 @@ if [ $# -gt 0 ]; then
       ;;
     --) # no subcommand, arguments only
   esac
+else
+  eval "${0} --help"
 fi
